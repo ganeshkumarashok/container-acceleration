@@ -1,8 +1,9 @@
 # Pre-req: install Azure CLI: https://docs.microsoft.com/en-us/cli/azure/install-azure-cli-linux
+# curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
 # curl https://getcroc.schollz.com | bash
 
 echo "Login to Azure"
-az login
+#az login
 
 echo "Creating resource group"
 RESOURCE_GROUP=gktest
