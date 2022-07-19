@@ -27,12 +27,18 @@ cp bin/containerd-nydus-grpc  /usr/local/bin
 
 # Nerdctl installation
 cd ..
-wget https://github.com/containerd/nerdctl/releases/download/v0.20.0/nerdctl-full-0.20.0-linux-amd64.tar.gz
-tar -xvf  nerdctl-full-0.20.0-linux-amd64.tar.gz
-rm nerdctl-full-0.20.0-linux-amd64.tar.gz
+wget https://github.com/containerd/nerdctl/releases/download/v0.22.0/nerdctl-full-0.22.0-linux-amd64.tar.gz
+tar -xvf nerdctl-full-0.22.0-linux-amd64.tar.gz
+rm nerdctl-full-0.22.0-linux-amd64.tar.gz
 
 nerdctl login
 # Login with credentials
+
+# CNI installation
+mkdir -p /opt/cni/bin
+curl -LO https://github.com/containernetworking/plugins/releases/download/v1.0.1/cni-plugins-linux-amd64-v1.0.1.tgz
+tar -xvzf cni-plugins-linux-amd64-v1.0.1.tgz -C /opt/cni/bin/
+rm cni-plugins-linux-amd64-v1.0.1.tgz
 
 sudo tee /etc/nydusd-config.json > /dev/null << EOF
 {
@@ -77,29 +83,34 @@ EOF
 #     --nydusimg-path /usr/local/bin/nydus-image \
 #     --log-to-stdout &
 
-tee /etc/systemd/system/containerd-nydus-grpc.service > /dev/null <<EOF
-[Unit]
-Description=nydus snapshotter
-After=network.target
-Before=containerd.service
-[Service]
-Type=simple
-Environment=HOME=/root
-ExecStart=/usr/local/bin/containerd-nydus-grpc \
-    --config-path /etc/nydusd-config.json \
-    --shared-daemon \
-    --log-level info \
-    --root /var/lib/containerd/io.containerd.snapshotter.v1.nydus \
-    --cache-dir /var/lib/nydus/cache \
-    --address /run/containerd/containerd-nydus-grpc.sock \
-    --nydusd-path /usr/local/bin/nydusd \
-    --nydusimg-path /usr/local/bin/nydus-image \
-    --log-to-stdout
-Restart=always
-RestartSec=1
-[Install]
-WantedBy=multi-user.target
-EOF
+
+git clone https://github.com/containerd/nydus-snapshotter
+cd nydus-snapshotter
+make install
+
+# tee /etc/systemd/system/containerd-nydus-grpc.service > /dev/null <<EOF
+# [Unit]
+# Description=nydus snapshotter
+# After=network.target
+# Before=containerd.service
+# [Service]
+# Type=simple
+# Environment=HOME=/root
+# ExecStart=/usr/local/bin/containerd-nydus-grpc \
+#     --config-path /etc/nydusd-config.json \
+#     --shared-daemon \
+#     --log-level info \
+#     --root /var/lib/containerd/io.containerd.snapshotter.v1.nydus \
+#     --cache-dir /var/lib/nydus/cache \
+#     --address /run/containerd/containerd-nydus-grpc.sock \
+#     --nydusd-path /usr/local/bin/nydusd \
+#     --nydusimg-path /usr/local/bin/nydus-image \
+#     --log-to-stdout
+# Restart=always
+# RestartSec=1
+# [Install]
+# WantedBy=multi-user.target
+# EOF
 
 sudo cat <<-EOF | sudo tee /etc/containerd/config.toml
 version = 2
@@ -131,7 +142,7 @@ oom_score = 0
 
 [proxy_plugins.nydus]
     type = "snapshot"
-    address = "/run/containerd/containerd-nydus-grpc.sock"
+    address = "/run/containerd-nydus/containerd-nydus-grpc.sock"
 EOF
 
 systemctl enable --now containerd-nydus-grpc.service
