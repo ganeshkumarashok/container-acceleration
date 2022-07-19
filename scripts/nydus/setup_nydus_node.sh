@@ -136,11 +136,3 @@ EOF
 
 systemctl restart containerd
 
-sudo nerdctl run -d --restart=always -p 5000:5000 registry
-sudo nydusify convert --nydus-image /usr/local/bin/nydus-image --source ubuntu --target localhost:5000/ubuntu-nydus
-sudo nerdctl --snapshotter nydus run --rm -it localhost:5000/ubuntu-nydus:latest bash
-
-## Suggestions: 
-# Move "Get containerd-nydus-grpc binary from nydus-snapshotter release page." instruction to top
-
-
