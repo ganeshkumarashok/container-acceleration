@@ -134,5 +134,7 @@ oom_score = 0
     address = "/run/containerd/containerd-nydus-grpc.sock"
 EOF
 
+systemctl enable --now containerd-nydus-grpc.service
+
 systemctl restart containerd
 
