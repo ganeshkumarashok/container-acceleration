@@ -9,7 +9,7 @@ echo "Creating resource group"
 RESOURCE_GROUP=gktest
 LOCATION=eastus
 CLUSTER_NAME=setupdadi
-NODEPOOL_NAME=testaccel
+NODEPOOL_NAME=ganeshaccel
 NODE_COUNT=3
 
 az group create -g $RESOURCE_GROUP -l $LOCATION
