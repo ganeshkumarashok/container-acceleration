@@ -6,15 +6,17 @@ mkdir /etc/containerd-stargz-grpc
 touch /etc/containerd-stargz-grpc/config.toml # Needed by stargz systemd service
 
 # Nerdctl installation
-wget https://github.com/containerd/nerdctl/releases/download/v0.20.0/nerdctl-full-0.20.0-linux-amd64.tar.gz
-tar -xvf  nerdctl-full-0.20.0-linux-amd64.tar.gz
-rm nerdctl-full-0.20.0-linux-amd64.tar.gz
+NERDCTL_VERSION=0.20.0
+wget https://github.com/containerd/nerdctl/releases/download/v$NERDCTL_VERSION/nerdctl-full-$NERDCTL_VERSION-linux-amd64.tar.gz
+tar -xvf  nerdctl-full-$NERDCTL_VERSION-linux-amd64.tar.gz
+rm nerdctl-full-$NERDCTL_VERSION-linux-amd64.tar.gz
 
 # CNI installation
+CNI_VERSION=1.0.1
 mkdir -p /opt/cni/bin
-curl -LO  https://github.com/containernetworking/plugins/releases/download/v1.0.1/cni-plugins-linux-amd64-v1.0.1.tgz
-tar -xvzf cni-plugins-linux-amd64-v1.0.1.tgz -C /opt/cni/bin/
-rm cni-plugins-linux-amd64-v1.0.1.tgz
+curl -LO  https://github.com/containernetworking/plugins/releases/download/v$CNI_VERSION/cni-plugins-linux-amd64-v$CNI_VERSION.tgz
+tar -xvzf cni-plugins-linux-amd64-v$CNI_VERSION.tgz -C /opt/cni/bin/
+rm cni-plugins-linux-amd64-v$CNI_VERSION.tgz
 
 sudo cat <<-EOF | sudo tee /etc/containerd/config.toml
 version = 2
@@ -52,9 +54,3 @@ EOF
 
 systemctl enable --now stargz-snapshotter
 systemctl restart containerd
-
-
-#####
-time nerdctl --snapshotter=stargz run --rm ghcr.io/stargz-containers/python:3.7-esgz python3 -c 'print("hello lazy-pulling")'
-
-time nerdctl --snapshotter=overlayfs run -it --rm ghcr.io/stargz-containers/python:3.7-org python3 -c 'print("hi")'
