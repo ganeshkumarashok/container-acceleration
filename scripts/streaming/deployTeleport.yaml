@@ -1,0 +1,86 @@
+# Builds/Installs mirror from source
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nsenter-actions
+  labels:
+    app: nsenter
+data:
+  wasm: |
+    #!/usr/bin/env bash
+    set -xe
+
+    if [[ -f /opt/sentinel ]]; then
+       if [[ ! -z "$1" ]]; then
+         echo "received positional argument, forcing cleanup"
+         rm /opt/sentinel || true
+       else
+         echo "Already ran, exiting"
+         exit 0
+       fi
+    fi
+
+    sudo apt-get update
+    
+    pushd /tmp || exit 1
+    wget 'https://github.com/juliusl/lifec_registry/releases/download/v0.1.0-dev-19/acr-mirror-1804-v0.1.0-dev-19.deb'
+    sudo apt-get install './acr-mirror-1804-v0.1.0-dev-19.deb' -y
+    rm './acr-mirror-1804-v0.1.0-dev-19.deb'
+    popd
+
+    # These libraries are needed for overlaybd-tcmu
+    sudo /opt/acr/tools/overlaybd/install.sh
+    sudo /opt/acr/tools/overlaybd/enable-http-auth.sh
+    modprobe target_core_user
+    sudo /opt/acr/tools/overlaybd/enable.sh
+
+    # Enabling mirror for teleportmetricstest
+    curl -X PUT 'localhost:8578/config?ns=teleportmetricstest.azurecr.io&stream_format=overlaybd&enable_containerd=true'
+    
+    touch /opt/sentinel
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: &name nsenter
+  labels:
+    app: *name
+spec:
+  selector:
+    matchLabels:
+      app: *name
+  template:
+    metadata:
+      labels:
+        app: *name
+    spec:
+      hostNetwork: true
+      hostPID: true
+      containers:
+      - image: docker.io/alexeldeib/nsenter:latest # https://github.com/alexeldeib/azbench/blob/main/images/nsenter/entrypoint.sh
+        imagePullPolicy: Always
+        name: *name
+        args: ["wasm"]
+        resources:
+          requests:
+            cpu: 0.5
+            memory: 2000Mi
+          limits:
+            cpu: 0.5
+            memory: 2000Mi
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - name: actions
+          mountPath: "/opt/actions"
+        - name: hostmount
+          mountPath: "/mnt/actions"
+      volumes:
+      - name: hostmount
+        hostPath:
+          path: /opt/actions
+          type: DirectoryOrCreate
+      - name: actions
+        configMap:
+          name: nsenter-actions
