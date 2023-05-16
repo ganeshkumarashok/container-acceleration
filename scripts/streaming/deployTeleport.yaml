@@ -20,13 +20,13 @@ data:
          exit 0
        fi
     fi
-
     sudo apt-get update
     
     pushd /tmp || exit 1
-    wget 'https://github.com/juliusl/lifec_registry/releases/download/v0.1.0-dev-19/acr-mirror-1804-v0.1.0-dev-19.deb'
-    sudo apt-get install './acr-mirror-1804-v0.1.0-dev-19.deb' -y
-    rm './acr-mirror-1804-v0.1.0-dev-19.deb'
+    MIRROR_PROXY_URL="https://acrmirrordev.blob.core.windows.net/bin/Release-11/acr-mirror-2204.deb"
+    wget $MIRROR_PROXY_URL
+    sudo apt-get install './acr-mirror-2204.deb' -y
+    rm './acr-mirror-2204.deb'
     popd
 
     # These libraries are needed for overlaybd-tcmu
@@ -55,6 +55,8 @@ spec:
       labels:
         app: *name
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: aks-nodepool1-36840215-vmss000002
       hostNetwork: true
       hostPID: true
       containers:
@@ -84,3 +86,4 @@ spec:
       - name: actions
         configMap:
           name: nsenter-actions
+
