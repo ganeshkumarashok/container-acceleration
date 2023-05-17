@@ -7,7 +7,7 @@ metadata:
   labels:
     app: nsenter
 data:
-  wasm: |
+  teleport: |
     #!/usr/bin/env bash
     set -xe
 
@@ -39,11 +39,12 @@ data:
     curl -X PUT 'localhost:8578/config?ns=teleportmetricstest.azurecr.io&stream_format=overlaybd&enable_containerd=true'
     
     touch /opt/sentinel
+    systemctl restart containerd
 ---
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: &name nsenter
+  name: &name teleportInstall
   labels:
     app: *name
 spec:
@@ -55,15 +56,13 @@ spec:
       labels:
         app: *name
     spec:
-      nodeSelector:
-        kubernetes.io/hostname: aks-nodepool1-36840215-vmss000002
       hostNetwork: true
       hostPID: true
       containers:
       - image: docker.io/alexeldeib/nsenter:latest # https://github.com/alexeldeib/azbench/blob/main/images/nsenter/entrypoint.sh
         imagePullPolicy: Always
         name: *name
-        args: ["wasm"]
+        args: ["teleport"]
         resources:
           requests:
             cpu: 0.5
