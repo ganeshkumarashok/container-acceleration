@@ -23,7 +23,12 @@ data:
     sudo apt-get update
     
     pushd /tmp || exit 1
-    MIRROR_PROXY_URL="https://acrmirrordev.blob.core.windows.net/bin/Release-11/acr-mirror-2204.deb"
+    UBUNTU_RELEASE=$(lsb_release -r -s)
+    UBUNTU_VERSION_CLEANED="${UBUNTU_RELEASE//.}"
+    # download acr-mirror proxy
+    MIRROR_PROXY_VERSION='18'
+    MIRROR_PROXY_URL="https://acrmirrordev.blob.core.windows.net/bin/Release-${MIRROR_PROXY_VERSION}/acr-mirror-${UBUNTU_VERSION_CLEANED}.deb"
+
     wget $MIRROR_PROXY_URL
     sudo apt-get install './acr-mirror-2204.deb' -y
     rm './acr-mirror-2204.deb'
