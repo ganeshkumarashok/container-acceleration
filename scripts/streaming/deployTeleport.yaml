@@ -7,7 +7,7 @@ metadata:
   labels:
     app: nsenter
 data:
-  teleport: |
+  teleportinstall: |
     #!/usr/bin/env bash
     set -xe
 
@@ -49,7 +49,7 @@ data:
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
-  name: &name teleportInstall
+  name: &name teleportinstall
   labels:
     app: *name
 spec:
