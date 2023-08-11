@@ -41,7 +41,7 @@ data:
     sudo /opt/acr/tools/overlaybd/enable.sh
 
     # Enabling mirror for teleportmetricstest
-    curl -X PUT 'localhost:8578/config?ns=teleportmetricstest.azurecr.io&stream_format=overlaybd&enable_containerd=true'
+    curl -X PUT 'localhost:8578/config?ns=default&stream_format=overlaybd&enable_containerd=true'
     
     touch /opt/sentinel
     systemctl restart containerd
