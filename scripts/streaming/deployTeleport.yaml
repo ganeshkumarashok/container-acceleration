@@ -26,7 +26,7 @@ data:
     UBUNTU_RELEASE=$(lsb_release -r -s)
     UBUNTU_VERSION_CLEANED="${UBUNTU_RELEASE//.}"
     # download acr-mirror proxy
-    MIRROR_PROXY_VERSION='18'
+    MIRROR_PROXY_VERSION='19'
     MIRROR_PROXY_URL="https://acrmirrordev.blob.core.windows.net/bin/Release-${MIRROR_PROXY_VERSION}/acr-mirror-${UBUNTU_VERSION_CLEANED}.deb"
 
     wget $MIRROR_PROXY_URL
