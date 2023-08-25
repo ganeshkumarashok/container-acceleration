@@ -68,7 +68,7 @@ spec:
       - image: docker.io/alexeldeib/nsenter:latest # https://github.com/alexeldeib/azbench/blob/main/images/nsenter/entrypoint.sh
         imagePullPolicy: Always
         name: *name
-        args: ["teleport"]
+        args: ["teleportinstall"]
         resources:
           requests:
             cpu: 0.5
