@@ -31,6 +31,7 @@ data:
 
     wget $MIRROR_PROXY_URL
     sudo apt-get install './acr-mirror-2204.deb' -y
+    systemctl start acr-mirror.service
     rm './acr-mirror-2204.deb'
     popd
 
@@ -41,7 +42,7 @@ data:
     sudo /opt/acr/tools/overlaybd/enable.sh
 
     # Enabling mirror for teleportmetricstest
-    curl -X PUT 'localhost:8578/config?ns=_default&stream_format=overlaybd&enable_containerd=true'
+    curl -X PUT 'localhost:8578/config?ns=_default&enable_suffix=azurecr.io&stream_format=overlaybd&enable_containerd=true'
     
     touch /opt/sentinel
     systemctl restart containerd
