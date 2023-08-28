@@ -39,10 +39,11 @@ data:
     sudo /opt/acr/tools/overlaybd/install.sh
     sudo /opt/acr/tools/overlaybd/enable-http-auth.sh
     modprobe target_core_user
-    sudo /opt/acr/tools/overlaybd/enable.sh
+    
 
     # Enabling mirror for teleportmetricstest
     curl -X PUT 'localhost:8578/config?ns=_default&enable_suffix=azurecr.io&stream_format=overlaybd&enable_containerd=true'
+    sudo /opt/acr/tools/overlaybd/enable.sh
     
     touch /opt/sentinel
     systemctl restart containerd
